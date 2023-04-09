@@ -1,4 +1,6 @@
-# [MyFigureCollection](https://myfigurecollection.net/) Automation Project
+<div align="center">
+<img src="mfcauto.svg">
+<h1> <a href="https://myfigurecollection.net" target="_blank"><span>MyFigureCollection</span></a> Automation Project </h1>
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python Version](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
@@ -7,6 +9,7 @@
 
 
 This repository contains a Python script that automates the process of adding entries to a user's MyFigureCollection.net account using Selenium WebDriver.
+</div>
 
 ## Features
 
