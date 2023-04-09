@@ -3,6 +3,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
 import pandas as pd
+import json
 import pickle
 import time
 
@@ -12,8 +13,8 @@ def main():
     load_cookies(driver, 'cookies.pkl')
     time.sleep(1)
     navigate_to_add_entry(driver)
-    row1 = process_csv_data()
-    add_entry(driver, row1)
+    entry1 = process_data()[0] #Only using the first entry for now
+    add_entry(driver, entry1)   #Add the entry
     time.sleep(99999)
 
 def initialize_driver():
@@ -26,65 +27,97 @@ def load_cookies(driver, file_path):
     for cookie in cookies:
         driver.add_cookie(cookie)
 
-# def click_sign_in(driver):
-#     aall = driver.find_elements(By.CLASS_NAME, 'action')
-#     aall[0].click()
-
-
-# def sign_in(driver):
-#     USERNAME = 'kamiosu'
-#     PASSWORD = 'Will123Will123'
-
-#     username = driver.find_element(By.NAME, 'username')
-#     username.send_keys(USERNAME)
-
-#     password = driver.find_element(By.NAME, 'password')
-#     password.send_keys(PASSWORD)
-
-#     driver.find_element(By.XPATH, '//*[@id="wide"]/div/section/form/div/div[5]/div/input').click()
-
-
 def navigate_to_add_entry(driver):
     driver.find_element(By.XPATH, '//*[@id="menu"]/div[3]/a').click()
     driver.find_element(By.XPATH, '//*[@id="content"]/div[1]/h1/span[2]/span[2]/a[1]').click()
     driver.find_element(By.XPATH, '//*[@id="main"]/div/a').click()
 
+def clean_up_dict(d):
+    cleaned_dict = {}
+    for k, v in d.items():
+        if isinstance(v, str):
+            cleaned_dict[k] = v.strip().lower()
+        elif isinstance(v, list):
+            cleaned_dict[k] = [s.strip().lower() for s in v if isinstance(s, str)]
+        else:
+            cleaned_dict[k] = v
+    return cleaned_dict
 
-def process_csv_data():
-    df = pd.read_csv('data.csv')
-    first_row = df.iloc[0]
-    stripped_lower = [element.strip().lower() if isinstance(element, str) else element for element in first_row]
-    return stripped_lower
+def process_data():
+    with open('data.json') as f:
+        data = json.load(f)
 
-def add_entry(driver, row):
-    if(row[1] == 'goods'): 
+    cleaned_data = [clean_up_dict(d) for d in data]
+    return cleaned_data
+
+def scrollby(driver, x, y):
+    ActionChains(driver)\
+        .scroll_by_amount(x,y)\
+        .perform()
+
+def pickentry(driver, entry, key):
+    form = driver.find_element(By.XPATH, '//*[@id="window"]/div/div/form/div[1]/div[2]/div[1]/div/input')
+    searchbtn = driver.find_element(By.XPATH, '//*[@id="window"]/div/div/form/div[1]/div[2]/div[1]/input[2]')
+    pickbtn = driver.find_element(By.XPATH, '//*[@id="window"]/div/div/form/div[2]/div[2]/div[2]/a')
+    if(entry[key] != []): 
+        for i in entry[key]:
+            #for each entry in the list, enter into form, press search button, and select it when it comes up in the list
+            #results are in a div with class "results", children have class "result"
+            form.send_keys(i)
+            searchbtn.click()
+            time.sleep(3) #This might take longe to load, how to make it wait until it's loaded?
+            pickbtn.click()
+            time.sleep(1)
+            
+def add_entry(driver, entry):
+    # ============== Enter the root entry ==============
+    if(entry['root'] == 'goods'): 
         driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[1]/div/div[1]/div[2]/a[2]').click()
         time.sleep(1)
         
-    if(row[2] == 'on walls'): 
+    # ============== Enter the category ==============
+    if(entry['category'] == 'on walls'): 
         driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[1]/div/div[2]/div[2]/a[6]').click()
         time.sleep(1)
 
-    if (row[3] == 'nsfw'):
+    # ============== Enter the content level ==============
+    if (entry['content_level'] == 'nsfw'):
         driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[1]/div/div[3]/div[2]/a[2]').click()
         time.sleep(1)
         
-    elif (row[3] == 'nsfw+'): 
+    elif (entry['content_level'] == 'nsfw+'): 
         driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[1]/div/div[3]/div[2]/a[3]').click()
         time.sleep(1)
     
     #Scroll to view next section of form
-    originpick = driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[3]/div/div[1]/div[2]/div[2]/a')
-    driver.scroll_to_element(originpick)
+    scrollby(driver, 0, 500)
+        
     time.sleep(1)
         
-    if(row[4] != None):
-        pickimage = driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[2]/div/div/div[2]/label')
-        filepath = f"/Users/kamiosu/Downloads/MFC\ 2023/{row[4]}"
-        pickimage.send_keys(filepath).submit()
-
-
-
+    if(entry['image_name'] != ""):
+        pickimage = driver.find_element(By.XPATH, '//*[@id="fl-picture"]')
+        filepath = f"/Users/kamiosu/Documents/PythonProjects/automfc/images/{entry['image_name']}"
+        pickimage.send_keys(filepath)
+    
+    scrollby(driver, 0, 400)
+    try:
+        driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[3]/div/div[1]/div[2]/div[2]/a').click()
+        time.sleep(2)
+        # ============== Pick the orgins  ==============
+        pickentry(driver, entry, 'origins')
+        driver.find_element(By.XPATH, '//*[@id="window"]/div/h2/nav/a[1]').click() #Go to character section
+        # ============== Pick the characters  ==============
+        pickentry(driver, entry, 'characters')
+        driver.find_element(By.XPATH, '//*[@id="window"]/div/h2/nav/a[2]').click() #Go to companies section
+        # ============== Pick the companies  ==============
+        pickentry(driver, entry, 'companies')
+        driver.find_element(By.XPATH, '//*[@id="window"]/div/h2/nav/a[2]').click() #Go to artists section
+        # ============== Pick the artists  ==============
+    except Exception as e:
+        print(e)
+    
+    
+    
 if __name__ == "__main__":
     main()
     

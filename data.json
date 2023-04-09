@@ -1,0 +1,34 @@
+[
+    { 
+        "root": "goods  ", 
+        "category": "on walls",
+        "content_level": "sfw",
+        "image_name": "kino2.jpeg",
+        "origins": ["9493"],
+        "characters": [],
+        "companies": ["22552"],
+        "artists": ["73587"],
+        "classifications": ["23392","119507"],
+        "materials": ["41500"],
+        "release_year": "2023",
+        "release_month": "5",
+        "release_day": "",
+        "run": "standard",
+        "notaxprice": 2691,
+        "barcode": "",
+        "size": "b2",
+        "additional_info": "",
+        "title": "",
+        "original_title": "",
+        "version": "",
+        "original_ver": "",
+        "width": null,
+        "length": null,
+        "height": null,
+        "weight": null,
+        "counterfeit": false,
+        "link": "https://www.melonbooks.co.jp/detail/detail.php?product_id=1886371"
+    }   
+
+    
+]
