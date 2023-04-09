@@ -1,5 +1,5 @@
 <div align="center">
-<img src="mfcauto.png" width="50%">
+<img src="images/mfcauto.png" width="50%">
 <h1> <a href="https://myfigurecollection.net" target="_blank"><span>MyFigureCollection</span></a> Automation Project </h1>
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
