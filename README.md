@@ -1,5 +1,13 @@
 # MyFigureCollection Automation Project
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Python Version](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)](https://github.com/your_username/your_repository_name/pulls)
+[![GitHub last commit](https://img.shields.io/github/last-commit/Kamiosu/automfc)](https://github.com/Kamiosu/automfc/commits/main)
+![](https://img.shields.io/github/stars/pandao/editor.md.svg) 
+![](https://img.shields.io/github/forks/pandao/editor.md.svg)
+
+
 This repository contains a Python script that automates the process of adding entries to a user's MyFigureCollection.net account using Selenium WebDriver.
 
 ## Features
@@ -24,9 +32,9 @@ Before running the script, ensure that you have the following installed on your 
 2. Navigate to the project directory in the terminal.
 3. Install the required Python packages:
 
-\```bash
+```bash
 pip install -r requirements.txt
-\```
+```
 
 4. Download the [Chrome WebDriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) and place it in your system's `PATH`.
 
@@ -34,10 +42,10 @@ pip install -r requirements.txt
 
 1. Open the `config.py` file and update the following variables with your own MyFigureCollection.net account information:
 
-\```python
+```python
 USERNAME = 'your_username'
 PASSWORD = 'your_password'
-\```
+```
 
 2. Create a CSV file named `data.csv` in the project directory, containing the information you want to add to your collection. The CSV file should have the following columns:
 
@@ -46,15 +54,13 @@ PASSWORD = 'your_password'
 - Adult Content (e.g., 'safe', 'nsfw', or 'nsfw+')
 - Image Filename (if applicable)
 
-3. Run the `main.py` script:
+3. Run the `signin_savecookies.py` script:
 
-\```bash
-python main.py
-\```
+```bash
+python signin_savecookies.py
+```
 
-4. The script will automatically sign in to your account, navigate to the "Add Entry" page, and fill out the form based on the processed data from the CSV file.
-
-5. The script saves login cookies to a file named `cookies.pkl`. Once you have successfully logged in and saved the cookies, you can use them for future sessions by loading them before running the script.
+4. The script will automatically sign in to your account and saves login cookies to a file named `cookies.pkl`. Once you have successfully logged in and saved the cookies, you can use them for future sessions by loading them before running that script anymore.
 
 ## Contributing
 
