@@ -4,8 +4,8 @@
 [![Python Version](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)](https://github.com/your_username/your_repository_name/pulls)
 [![GitHub last commit](https://img.shields.io/github/last-commit/Kamiosu/automfc)](https://github.com/Kamiosu/automfc/commits/main)
-![](https://img.shields.io/github/stars/pandao/editor.md.svg) 
-![](https://img.shields.io/github/forks/pandao/editor.md.svg)
+![](https://img.shields.io/github/stars/Kamiosu/automfc) 
+![](https://img.shields.io/github/forks/Kamiosu/automfc)
 
 
 This repository contains a Python script that automates the process of adding entries to a user's MyFigureCollection.net account using Selenium WebDriver.
@@ -36,7 +36,7 @@ Before running the script, ensure that you have the following installed on your 
 pip install -r requirements.txt
 ```
 
-4. Download the [Chrome WebDriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) and place it in your system's `PATH`.
+4. Download the [Chrome WebDriver](https://sites.google.com/chromium.org/driver/downloads?authuser=0) and place it in your system's `PATH`.
 
 ## Usage
 
@@ -47,12 +47,18 @@ USERNAME = 'your_username'
 PASSWORD = 'your_password'
 ```
 
-2. Create a CSV file named `data.csv` in the project directory, containing the information you want to add to your collection. The CSV file should have the following columns:
+2. A .CSV file has is already provided that specifies what you need to add. However you can also create your own, .CSV file named `data.csv` in the project directory, containing the information you want to add to your collection. The CSV file should have the following columns:
 
 - Item Type (e.g., 'goods', 'figures', etc.)
 - Display Type (e.g., 'on shelves', 'on walls', etc.)
 - Adult Content (e.g., 'safe', 'nsfw', or 'nsfw+')
 - Image Filename (if applicable)
+
+| id |  root | category | content_level | image_name | origin | characters | companies | artists | classification |
+|:--:|:-----:|:--------:|:-------------:|:----------:|:------:|:----------:|:---------:|:-------:|:--------------:|
+|  0 |       |          |               |            |        |            |           |         |                |        
+|  1 |       |          |               |            |        |            |           |         |                |
+|  2 |       |          |               |            |        |            |           |         |                | 
 
 3. Run the `signin_savecookies.py` script:
 
