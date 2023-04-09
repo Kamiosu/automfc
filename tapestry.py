@@ -1,16 +1,16 @@
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.webdriver import ActionChains
 import pandas as pd
 import pickle
-
 import time
 
 def main():
     driver = initialize_driver()
     driver.get('https://myfigurecollection.net/')
     load_cookies(driver, 'cookies.pkl')
-    
+    time.sleep(1)
     navigate_to_add_entry(driver)
     row1 = process_csv_data()
     add_entry(driver, row1)
@@ -72,11 +72,16 @@ def add_entry(driver, row):
     elif (row[3] == 'nsfw+'): 
         driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[1]/div/div[3]/div[2]/a[3]').click()
         time.sleep(1)
+    
+    #Scroll to view next section of form
+    originpick = driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[3]/div/div[1]/div[2]/div[2]/a')
+    driver.scroll_to_element(originpick)
+    time.sleep(1)
         
     if(row[4] != None):
-        image = driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[2]/div/div/div[2]/label')
+        pickimage = driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[2]/div/div/div[2]/label')
         filepath = f"/Users/kamiosu/Downloads/MFC\ 2023/{row[4]}"
-        # image.send_keys(filepath)
+        pickimage.send_keys(filepath).submit()
 
 
 
