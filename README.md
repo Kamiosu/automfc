@@ -74,4 +74,4 @@ If you'd like to contribute to this project, feel free to fork the repository, m
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
