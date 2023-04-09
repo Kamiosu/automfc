@@ -1,11 +1,11 @@
 # [MyFigureCollection](https://myfigurecollection.net/) Automation Project
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python Version](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)](https://github.com/your_username/your_repository_name/pulls)
 [![GitHub last commit](https://img.shields.io/github/last-commit/Kamiosu/automfc)](https://github.com/Kamiosu/automfc/commits/main)
-![](https://img.shields.io/github/stars/Kamiosu/automfc) 
-![](https://img.shields.io/github/forks/Kamiosu/automfc)
+![GitHub stars](https://img.shields.io/github/stars/<Kamiosu>/<automfc>?style=social)
+![GitHub forks](https://img.shields.io/github/forks/<Kamiosu>/<automfc>?style=social)
 
 
 This repository contains a Python script that automates the process of adding entries to a user's MyFigureCollection.net account using Selenium WebDriver.
