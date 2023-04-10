@@ -56,25 +56,26 @@ def scrollby(driver, x, y):
         .perform()
 
 def pickentry(driver, entry, key):
-    form = driver.find_element(By.XPATH, '//*[@id="window"]/div/div/form/div[1]/div[2]/div[1]/div/input')
-    searchbtn = driver.find_element(By.XPATH, '//*[@id="window"]/div/div/form/div[1]/div[2]/div[1]/input[2]')
-    pickbtn = driver.find_element(By.XPATH, '//*[@id="window"]/div/div/form/div[2]/div[2]/div[2]/a')
-    if(entry[key] != []): 
+    if(len(entry[key]) != 0): 
         for i in entry[key]:
+            #================= Fill in the form with the id of the entry =================
+            driver.find_element(By.XPATH, '//*[@id="window"]/div/div/form/div[1]/div[2]/div[1]/div/input').send_keys(i)
+            #================= Click the search button =================
+            driver.find_element(By.XPATH, '//*[@id="window"]/div/div/form/div[1]/div[2]/div[1]/input[2]').click()
             #for each entry in the list, enter into form, press search button, and select it when it comes up in the list
             #results are in a div with class "results", children have class "result"
-            form.send_keys(i)
-            searchbtn.click()
             time.sleep(3) #This might take longe to load, how to make it wait until it's loaded?
-            pickbtn.click()
+            driver.find_element(By.XPATH,'//*[@id="window"]/div/div/form/div[2]/div[2]/div[2]/a').click()
+            print("working")
             time.sleep(1)
+    else: pass
             
 def add_entry(driver, entry):
     # ============== Enter the root entry ==============
     if(entry['root'] == 'goods'): 
         driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[1]/div/div[1]/div[2]/a[2]').click()
         time.sleep(1)
-        
+    
     # ============== Enter the category ==============
     if(entry['category'] == 'on walls'): 
         driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[1]/div/div[2]/div[2]/a[6]').click()
@@ -107,7 +108,7 @@ def add_entry(driver, entry):
         pickentry(driver, entry, 'origins')
         driver.find_element(By.XPATH, '//*[@id="window"]/div/h2/nav/a[1]').click() #Go to character section
         # ============== Pick the characters  ==============
-        pickentry(driver, entry, 'characters')
+        pickentry(driver, entry, 'characters') 
         driver.find_element(By.XPATH, '//*[@id="window"]/div/h2/nav/a[2]').click() #Go to companies section
         # ============== Pick the companies  ==============
         pickentry(driver, entry, 'companies')
