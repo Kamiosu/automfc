@@ -2,7 +2,7 @@
     { 
         "root": "goods  ", 
         "category": "on walls",
-        "content_level": "sfw",
+        "content_level": "nsfw",
         "image_name": "kino2.jpeg",
         "origins": ["9493"],
         "characters": [],
@@ -14,10 +14,10 @@
         "release_year": "2023",
         "release_month": "5",
         "release_day": "",
-        "run": "standard",
+        "run": "exclusive",
         "notaxprice": 2691,
         "barcode": "",
-        "size": "b2",
+        "size": "B2",
         "additional_info": "",
         "title": "",
         "original_title": "",
@@ -28,7 +28,7 @@
         "height": null,
         "weight": null,
         "counterfeit": false,
-        "link": "https://www.melonbooks.co.jp/detail/detail.php?product_id=1886371"
+        "links": ["https://www.melonbooks.co.jp/detail/detail.php?product_id=1886371", "https://www.melonbooks.co.jp/detail/detail.php?product_id=1886381", "https://www.melonbooks.co.jp/detail/detail.php?product_id=1886391"]
     }   
 
     
