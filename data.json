@@ -1,22 +1,22 @@
 [
     { 
-        "root": "goods  ", 
+        "root": "goods", 
         "category": "on walls",
         "content_level": "nsfw",
-        "image_name": "kino2.jpeg",
+        "image_name": "97497.jpg",
         "origins": ["9493"],
         "characters": [],
-        "companies": ["22552"],
-        "artists": ["73587"],
-        "classifications": ["23392","119507"],
+        "companies": ["62891"],
+        "artists": ["297145"],
+        "classifications": ["23392", "108691"],
         "materials": ["41500"],
         "events": [],
         "release_year": "2023",
-        "release_month": "5",
+        "release_month": "7",
         "release_day": "",
-        "run": "exclusive",
-        "notaxprice": 2691,
-        "barcode": "",
+        "run": "standard",
+        "notaxprice": 3900,
+        "barcode": "4538806063043",
         "size": "B2",
         "additional_info": "",
         "title": "",
@@ -28,8 +28,7 @@
         "height": null,
         "weight": null,
         "counterfeit": false,
-        "links": ["https://www.melonbooks.co.jp/detail/detail.php?product_id=1886371", "https://www.melonbooks.co.jp/detail/detail.php?product_id=1886381", "https://www.melonbooks.co.jp/detail/detail.php?product_id=1886391"]
-    }   
+        "links": ["https://www.getchu.com/soft.phtml?id=1224948"]
+    }
 
-    
 ]

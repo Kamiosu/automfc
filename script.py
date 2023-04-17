@@ -15,6 +15,7 @@ from selenium.webdriver.support.select import Select
 # Constants
 URL = 'https://myfigurecollection.net/'
 COOKIES = 'cookies.pkl'
+IMAGES_PATH = "/Users/kamiosu/Documents/automfc2023/"
 XPATHS = {}
 RUN = { 
     'standard': '1',
@@ -46,6 +47,13 @@ SIZE = {
     'xl': 'XL',
     }
 
+'''
+============== VALID TYPES ==============
+getchu: adds a getchu entry
+uribou: adds a uribou tapestry entry
+'''
+TYPE = "getchu"
+COMPANY = "Getchu"
 
 def initialize_driver():
     driver = webdriver.Chrome()
@@ -117,7 +125,7 @@ def section_category(driver, entry):
 def selectPhoto(driver, entry):
     if(entry['image_name'] != ""):
         pickimage = driver.find_element(By.XPATH, '//*[@id="fl-picture"]')
-        filepath = f"/Users/kamiosu/Documents/PythonProjects/automfc/images/{entry['image_name']}"
+        filepath = f"{IMAGES_PATH}{entry['image_name']}"
         pickimage.send_keys(filepath)
 
 def pickentry(driver, entry, key):
@@ -229,7 +237,7 @@ def section_releases(driver, entry):
         #================= Enter additional info =================
         if(entry['additional_info'] != ""):
             driver.find_element(By.NAME, 'releaseEvents[]').send_keys(entry['additional_info'])
-        
+
 def section_furtherinfo(driver, entry):
     #OTHER STUFF NOT YET DONE
     #================= Scroll to the last section and submit button =================
@@ -237,10 +245,21 @@ def section_furtherinfo(driver, entry):
     time.sleep(1)
     if(entry['content_level'] == "nsfw" or entry['content_level'] == "nsfw+"):
         driver.find_element(By.XPATH, '//*[@id="rd-rating-3"]').click()
-    three_sizes = f'Product Page → [url={entry["links"][0]}]B2[/url] | [url={entry["links"][1]}]B1[/url] | [url={entry["links"][2]}]B0[/url]'
+
+    if(TYPE == "uribou"):    
+        uribou(driver, entry)
+    elif(TYPE == "getchu"): 
+        getchu(driver, entry)
+    else: print("No TYPE specified")
+    
+def uribou(driver, entry):
+    three_sizes = f'Product Page → [url={entry["links"][0]}]B2[/url] | [url={entry["links"][1]}]B1[/url] | [url={entry["links"][2]}]B0[/url]' 
     driver.find_element(By.NAME, 'information').send_keys(three_sizes)
     
-
+def getchu(driver, entry): 
+    onelink = f'[url={entry["links"][0]}]{COMPANY}[/url]'
+    driver.find_element(By.NAME, 'information').send_keys(onelink)
+    
 
 def add_entry(driver, entry):
     try:
