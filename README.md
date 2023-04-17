@@ -48,7 +48,7 @@ USERNAME = 'your_username'
 PASSWORD = 'your_password'
 ```
 
-2. A .CSV file has is already provided that specifies what you need to add. However you can also create your own, .CSV file named `data.csv` in the project directory, containing the information you want to add to your collection. The CSV file should have the following columns:
+2. A .JSON file has is already provided that specifies what you need to add. However you can also create your own, .JSON file named `data.JSON` in the project directory, containing the information you want to add to your collection. The JSON file should have the following columns:
 
 - Item Type (e.g., 'goods', 'figures', etc.)
 - Display Type (e.g., 'on shelves', 'on walls', etc.)
