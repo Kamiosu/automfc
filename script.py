@@ -10,6 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.select import Select
+import scraper
 
 
 # Constants
@@ -49,11 +50,14 @@ SIZE = {
 
 '''
 ============== VALID TYPES ==============
-getchu: adds a getchu entry
+one: adds an entry with only one url
 uribou: adds a uribou tapestry entry
 '''
-TYPE = "getchu"
-COMPANY = "Getchu"
+TYPE = "one"
+COMPANY = "GOT"
+
+
+#========================================
 
 def initialize_driver():
     driver = webdriver.Chrome()
@@ -248,15 +252,15 @@ def section_furtherinfo(driver, entry):
 
     if(TYPE == "uribou"):    
         uribou(driver, entry)
-    elif(TYPE == "getchu"): 
-        getchu(driver, entry)
+    elif(TYPE == "one"): 
+        oneURL(driver, entry)
     else: print("No TYPE specified")
     
 def uribou(driver, entry):
     three_sizes = f'Product Page → [url={entry["links"][0]}]B2[/url] | [url={entry["links"][1]}]B1[/url] | [url={entry["links"][2]}]B0[/url]' 
     driver.find_element(By.NAME, 'information').send_keys(three_sizes)
     
-def getchu(driver, entry): 
+def oneURL(driver, entry): 
     onelink = f'[url={entry["links"][0]}]{COMPANY}[/url]'
     driver.find_element(By.NAME, 'information').send_keys(onelink)
     
@@ -298,6 +302,8 @@ def add_entry(driver, entry):
     
     
 def main():
+    scraper.main()
+    time.sleep(2)
     driver = initialize_driver()
     driver.get(URL)
     load_cookies(driver, COOKIES)
