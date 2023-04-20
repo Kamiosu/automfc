@@ -7,14 +7,16 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import ElementNotSelectableException, ElementNotVisibleException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.select import Select
-import scraper
+import scraperGOT
+from scraperGOT import getchu_urls
 
 
 # Constants
-URL = 'https://myfigurecollection.net/'
+URL = 'https://myfigurecollection.net/figure/'
 COOKIES = 'cookies.pkl'
 IMAGES_PATH = "/Users/kamiosu/Documents/automfc2023/"
 XPATHS = {}
@@ -54,7 +56,7 @@ one: adds an entry with only one url
 uribou: adds a uribou tapestry entry
 '''
 TYPE = "one"
-COMPANY = "GOT"
+COMPANY = "Getchu"
 
 
 #========================================
@@ -76,7 +78,6 @@ def wait_for_element(driver, xpath, timeout=10):
     return WebDriverWait(driver, timeout).until(EC.element_to_be_clickable((By.XPATH, xpath)))
 
 def navigate_to_add_entry(driver):
-    driver.find_element(By.XPATH, '//*[@id="menu"]/div[3]/a').click()
     driver.find_element(By.XPATH, '//*[@id="content"]/div[1]/h1/span[2]/span[2]/a[1]').click()
     driver.find_element(By.XPATH, '//*[@id="main"]/div/a').click()
 
@@ -209,22 +210,33 @@ def section_entries(driver, entry):
         print(e)
         pass      
 
+def refine(driver, entry): 
+    #=========== select type for artist, set to illustrator =================
+    artist = Select(driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[3]/div/div[4]/div[2]/div[1]/div[1]/div[2]/select'))
+    if(artist != None):
+        artist.select_by_visible_text('Illustrator')
+    
+    #=========== Enter the classification id if it exists =================
+    if(entry['classifications_id'] != None):
+        hash_id = driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[3]/div/div[5]/div[2]/div[1]/div[2]/div[2]/input')
+        hash_id.send_keys(entry['classifications_id'])
+
 def section_releases(driver, entry):
     #================= ADD A RELEASE DATE + RELEVANT INFO =================
         driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[4]/div/div[1]/div/div[2]/a').click()
         time.sleep(1)
         #================= Select the release year =================
         year = Select(driver.find_element(By.NAME, 'releaseYears[]'))
-        if(entry['release_year'] != ""):
-            year.select_by_value(entry['release_year'])
+        if(entry['release_year'] != None):
+            year.select_by_visible_text(entry['release_year'])
         #================= Select the release month =================
         month = Select(driver.find_element(By.NAME, 'releaseMonths[]'))
-        if(entry['release_month'] != ""):
-            month.select_by_value(entry['release_month'])
+        if(entry['release_month'] != None):
+            month.select_by_visible_text(entry['release_month'])
         #================= Select the release day =================
         day = Select(driver.find_element(By.NAME, 'releaseDays[]'))
-        if(entry['release_day'] != ""):
-            day.select_by_value(entry['release_day'])
+        if(entry['release_day'] != None):
+            day.select_by_visible_text(entry['release_day'])
         #================= Select the run type =================
         run = Select(driver.find_element(By.NAME, 'releaseRunIds[]'))
         if(entry['run'] != ""):
@@ -263,6 +275,19 @@ def uribou(driver, entry):
 def oneURL(driver, entry): 
     onelink = f'[url={entry["links"][0]}]{COMPANY}[/url]'
     driver.find_element(By.NAME, 'information').send_keys(onelink)
+
+
+def submit_entry(driver): 
+    submit = driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[6]/div/div[3]/div/input[1]')
+    submit.click()
+    time.sleep(1)
+    scroll_by(driver, 0, 1000)
+    time.sleep(1)
+    wait = WebDriverWait(driver, timeout=10, poll_frequency=1, ignored_exceptions=[ElementNotVisibleException, ElementNotSelectableException])
+    submit_thumbnail = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@id='wide']/div/section/form/div/div[2]/div/input[2]")))
+    # submit_thumbnail = driver.find_element(By.XPATH, '//*[@id="wide"]/div/section/form/div/div[2]/div/input[2]')
+    submit_thumbnail.click()
+    
     
 
 def add_entry(driver, entry):
@@ -282,7 +307,13 @@ def add_entry(driver, entry):
         
         section_entries(driver, entry)
         
-        scroll_by(driver, 0, 2000)
+        scroll_by(driver, 0, 1000)
+        
+        time.sleep(1)
+        
+        refine(driver, entry)
+        
+        scroll_by(driver, 0, 900)
         
         time.sleep(1)
         
@@ -290,11 +321,15 @@ def add_entry(driver, entry):
         
         time.sleep(1)
         
-        scroll_by(driver, 0, 900)
+        scroll_by(driver, 0, 1000)
         
         time.sleep(1)
         
         section_furtherinfo(driver, entry)
+        
+        time.sleep(1.5)
+        
+        submit_entry(driver)
         
         
     except Exception as e:
@@ -302,16 +337,20 @@ def add_entry(driver, entry):
     
     
 def main():
-    scraper.main()
-    time.sleep(2)
     driver = initialize_driver()
     driver.get(URL)
     load_cookies(driver, COOKIES)
     time.sleep(1)
-    navigate_to_add_entry(driver)
-    entry1 = process_data()[0] #Only using the first entry for now
-    add_entry(driver, entry1)   #Add the entry
-    time.sleep(99999)
+    for i in range(len(getchu_urls)):
+        if(getchu_urls[i] != ""):
+            print(f'\nAdding entry {i+1}/{len(getchu_urls)}\n')
+            driver.get(URL)
+            scraperGOT.main(i)
+            time.sleep(2)
+            navigate_to_add_entry(driver)
+            entry1 = process_data()[0] #Only using the first entry for now
+            add_entry(driver, entry1)   #Add the entry
+            time.sleep(3)
    
     
 if __name__ == "__main__":
