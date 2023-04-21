@@ -14,18 +14,20 @@ This repository contains a Python script that automates the process of adding en
 ## Features
 
 - Automates the sign-in process to MyFigureCollection.net
-- Reads data from a CSV file and processes it
+- Reads data from a JSON file and processes it
 - Navigates to the "Add Entry" page and fills out the form based on the processed data
 - Supports saving and loading login cookies to minimize the need for signing in repeatedly
 
 ## Prerequisites
 
-Before running the script, ensure that you have the following installed on your system:
+Before running the script, ensure that you have the following installed on your system read more about installing requirments below:
 
 - Python 3.x
 - Selenium WebDriver
 - Google Chrome WebDriver
 - pandas
+- BeautifulSoup
+- lxml
 
 ## Installation
 
@@ -69,6 +71,11 @@ python signin_savecookies.py
 
 4. The script will automatically sign in to your account and saves login cookies to a file named `cookies.pkl`. Once you have successfully logged in and saved the cookies, you can use them for future sessions by loading them before running that script anymore.
 
+5. Enter all links when corresponding artists in scraperGOT.py
+
+6. Run script.py, should open a new chrome window and add each entry link given
+
+7. Sit back and relax!
 ## Contributing
 
 If you'd like to contribute to this project, feel free to fork the repository, make changes, and submit a pull request. We appreciate any help in improving the project!
