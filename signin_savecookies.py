@@ -21,8 +21,8 @@ def click_sign_in(driver):
 
 
 def sign_in(driver):
-    USERNAME = '12'
-    PASSWORD = '12'
+    USERNAME = ''
+    PASSWORD = ''
 
     username = driver.find_element(By.NAME, 'username')
     username.send_keys(USERNAME)
