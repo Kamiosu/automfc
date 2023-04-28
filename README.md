@@ -66,7 +66,7 @@ PASSWORD = 'your_password'
 3. Run the `signin_savecookies.py` script:
 
 ```bash
-python signin_savecookies.py
+python savecookies.py
 ```
 
 4. The script will automatically sign in to your account and saves login cookies to a file named `cookies.pkl`. Once you have successfully logged in and saved the cookies, you can use them for future sessions by loading them before running that script anymore.
