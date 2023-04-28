@@ -63,7 +63,7 @@ PASSWORD = 'your_password'
 |  1 |       |          |               |            |        |            |           |         |                |
 |  2 |       |          |               |            |        |            |           |         |                | 
 
-3. Run the `signin_savecookies.py` script:
+3. Run the `savecookies.py` script:
 
 ```bash
 python savecookies.py
