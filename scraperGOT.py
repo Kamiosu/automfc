@@ -3,6 +3,7 @@ import logging
 from lxml import etree
 import requests
 import json
+from ArtistNotFoundException import ArtistNotFoundException
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36'
@@ -12,25 +13,13 @@ IMAGES_PATH = "/Users/kamiosu/Documents/automfc2023/"
 
 # Make sure that every link is formated so that there are no empty index at the front of the lists
 getchu_urls = [
-    "https://www.getchu.com/soft.phtml?id=1227327",
-    "https://www.getchu.com/soft.phtml?id=1227328",
-    "https://www.getchu.com/soft.phtml?id=1227329",
-    "https://www.getchu.com/soft.phtml?id=1227330",
+    "https://www.getchu.com/soft.phtml?id=1227331",
+    "https://www.getchu.com/soft.phtml?id=1227332",
+    "https://www.getchu.com/soft.phtml?id=1227333"
 ]
 
-artists = [
-           ['290786'],
-           ['130658'],
-           ['67731'],
-           ['113780'],
-           [''],
-           [''],
-           [''],
-           
-           ]
-
-barcodes = ['4538806063067']
-
+with open('database/artists.json', 'r') as f:
+    artists = json.load(f)
 
 def is_kanji(char):
     cp = ord(char)
@@ -46,6 +35,12 @@ def is_kanji(char):
     else:
         return False
 
+def search_json(target, data):
+    for item in data:
+        if target == item["original_name"]:
+            return item
+    return None
+
 def create_getchu_session():
     """Create a requests session object to handle cookies automatically."""
     session = requests.Session()
@@ -53,7 +48,6 @@ def create_getchu_session():
     session.cookies.update(cookies)
     session.headers.update(HEADERS)
     return session
-
 
 def parse_html(content):
     """
@@ -133,7 +127,8 @@ def fetch_info(url):
             'release_month': None,
             'release_day': None,
             'barcode': None,
-            'classifications_id': None
+            'classifications_id': None,
+            'artists': None
             }
     try:
 
@@ -171,6 +166,16 @@ def fetch_info(url):
             '//*[@id="soft-title"]')[0].text.strip().split(" ")
         info["classifications_id"] = title[2]
         print(f'success! classification id: {info["classifications_id"]}')
+        
+        
+        # =================== Get artists ID ===================
+        artist_name = lxml_element.xpath('//*[@id="soft_table"]/tbody/tr[2]/th/table/tbody/tr[6]/td[2]/a')[0].text.strip()
+        print(f'success! artist name: {artist_name}')
+        artist = search_json(artist_name, artists)
+        if(artist != None):
+            info['artists'] = [artist['id']]
+        else:
+            raise ArtistNotFoundException(artist_name)
         
         return info
     except requests.exceptions.RequestException as e:
@@ -228,11 +233,10 @@ def create_entry_object(img_name: str, artists: str, classid: str, barcode: str,
 
         # Append a new object to the data
         data.clear()
-        data.append(entry)
-
+        data.append(entry)        
         # Write the updated data back to the file
         with open('data.json', 'w') as f:
-            json.dump(data, f)
+            json.dump(data, f, ensure_ascii=False)
 
     except IndexError as e:
         print(f"Error: {e}")
@@ -245,17 +249,19 @@ def main(index=0):
 
     if(getchu_urls[index] != ""):
 
+      
         img_name = fetch_images(getchu_urls[index])
         print(f'Image URL: {img_name}')
         entry_info = fetch_info(getchu_urls[index])
         print(f'Entry Info: {entry_info}')
-
-        index = getchu_urls.index(getchu_urls[index])
+        
         create_entry_object(
-        img_name, artists[index], entry_info['classifications_id'], entry_info['barcode'], entry_info['price'], entry_info['release_year'], entry_info['release_month'], entry_info['release_day'], getchu_urls[index]
+        img_name, entry_info['artists'], entry_info['classifications_id'], entry_info['barcode'], entry_info['price'], entry_info['release_year'], entry_info['release_month'], entry_info['release_day'], getchu_urls[index]
                             )
         
         print('success! entry created')
+                 
+            
         
 if __name__ == "__main__":
     main()

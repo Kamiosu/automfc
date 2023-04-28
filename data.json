@@ -1,0 +1,47 @@
+[
+    {
+        "root": "goods",
+        "category": "on walls",
+        "content_level": "nsfw",
+        "image_name": "574まめおじたんGOT.jpg",
+        "origins": [
+            "9493"
+        ],
+        "characters": [],
+        "companies": [
+            "62891"
+        ],
+        "artists": [
+            "172511"
+        ],
+        "classifications": [
+            "23392",
+            "108691"
+        ],
+        "classifications_id": "574",
+        "materials": [
+            "41500"
+        ],
+        "events": [],
+        "release_year": "2023",
+        "release_month": "08",
+        "release_day": null,
+        "run": "standard",
+        "notaxprice": 3900,
+        "barcode": "4538806063296",
+        "size": "B2",
+        "additional_info": "",
+        "title": "",
+        "original_title": "",
+        "version": "",
+        "original_ver": "",
+        "width": null,
+        "length": null,
+        "height": null,
+        "weight": null,
+        "counterfeit": null,
+        "links": [
+            "https://www.getchu.com/soft.phtml?id=1227333"
+        ]
+    }
+]

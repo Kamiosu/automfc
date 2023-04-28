@@ -12,8 +12,8 @@ BOT_NAME = "encyclopedia"
 SPIDER_MODULES = ["encyclopedia.spiders"]
 NEWSPIDER_MODULE = "encyclopedia.spiders"
 DUPEFILTER_DEBUG = True
-DOWNLOAD_DELAY = .001
-
+DOWNLOAD_DELAY = 0.05
+HTTPERROR_ALLOWED_CODES  =[404]
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "encyclopedia (+http://www.yourdomain.com)"
 
@@ -92,3 +92,4 @@ ROBOTSTXT_OBEY = True
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
+
