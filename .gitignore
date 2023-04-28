@@ -399,7 +399,7 @@ FodyWeavers.xsd
 
 #User cookies
 cookies.pkl
-signin_savecookies.py
+savecookies_private.py
 parsedata.ipynb
 melon.html
 

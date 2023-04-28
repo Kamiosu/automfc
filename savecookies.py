@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 
 def main(): 
     driver = initialize_driver()
+    driver.add_cookie({"name": "TBv4_GDPR", "value": "2"})
     sign_in(driver)
     save_cookies(driver, 'cookies.pkl')
 
