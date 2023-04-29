@@ -234,11 +234,17 @@ def section_releases(driver, entry):
         #================= Select the release month =================
         month = Select(driver.find_element(By.NAME, 'releaseMonths[]'))
         if(entry['release_month'] != None):
-            month.select_by_visible_text(entry['release_month'])
+            if(len(entry['release_month']) == 1):
+                month.select_by_visible_text('0' + entry['release_month'])
+            else: 
+                month.select_by_visible_text(entry['release_month'])
         #================= Select the release day =================
         day = Select(driver.find_element(By.NAME, 'releaseDays[]'))
         if(entry['release_day'] != None):
-            day.select_by_visible_text(entry['release_day'])
+            if(len(entry['release_day']) == 1):
+                day.select_by_visible_text('0' + entry['release_day'])
+            else:
+                day.select_by_visible_text(entry['release_day'])
         #================= Select the run type =================
         run = Select(driver.find_element(By.NAME, 'releaseRunIds[]'))
         if(entry['run'] != None):
