@@ -2,6 +2,8 @@ from bs4 import BeautifulSoup
 import logging
 import requests
 import json
+from ArtistNotFoundException import ArtistNotFoundException
+from CompanyNotFoundException import CompanyNotFoundException
 requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'ALL:@SECLEVEL=1'
 
 HEADERS = {
@@ -12,14 +14,14 @@ IMAGES_PATH = "/Users/kamiosu/Documents/automfc2023/"
 
 # Make sure that every link is formated so that there are no empty index at the front of the lists
 melon_urls = [
-    "https://www.melonbooks.co.jp/detail/detail.php?product_id=1910487",
-    
+
 ]
 
 with open('database/companies.json') as f:
     companies = json.load(f)
 with open('database/artists.json') as f:
     artists = json.load(f)
+
 
 def create_melon_session():
     """Create a requests session object to handle cookies automatically."""
@@ -31,6 +33,15 @@ def create_melon_session():
     return session
 
 
+def search_json(target, data):
+    for item in data:
+        if target.replace(" ", '').lower() == str(item["original_name"]).replace(" ",'').lower():
+            return item
+        if target.replace("", '').lower() == str(item["name"]).replace(" ",'').lower():
+            return item
+    return None
+
+
 def parse_html(request):
     """
     Parse the HTML content using Beautiful Soup and return an lxml element.
@@ -40,7 +51,7 @@ def parse_html(request):
     """
     soup = BeautifulSoup(request, "html5lib")
     open('melon.html', 'w').write(soup.prettify())
-    
+
     return soup
 
 
@@ -56,15 +67,16 @@ def fetch_images(url, session, soup):
     try:
         # Get the image URL from the soup element
         image_url = soup.find('div', class_='slider').a.get('href')
-    
+
         # Make a GET request to the image URL
         response = session.get("https://"+image_url[2:], verify=True)
         response.raise_for_status()
 
         # Save the image to file
-        artist_name = soup.find('td', class_='product_info').a.text.strip()
+        artist_name = soup.find(
+            "div", class_="table-wrapper").table.tbody.find_all('tr')[1].td.a.text.strip()
         title = url.strip().split('=')[-1] + artist_name
-        # print(title)            
+        # print(title)
         # ============ Entry Number + + Artist Name + GOT ============
         entry_name = ''.join(title) + "Melon"
 
@@ -77,31 +89,41 @@ def fetch_images(url, session, soup):
         logging.error(f"Error: {e}")
         return None
 
-def fetch_info(url, soup):
+
+def fetch_info(soup):
     info = {'price': None,
+            'artists': None,
+            'companies': None,
             'release_year': None,
             'release_month': None,
             'release_day': None,
-            'artist': None,
-            'company': None,
+            'content_level': None,
             }
     try:
-        #get Company Name always the first tr
-        company = soup.find("div", class_="table-wrapper").table.tbody.find_all('tr')[0].td.a.text.strip()
-        #Search the json for the company id
-        for company in companies: 
-            if companies['original_name'] == company: 
-                company = company['id']
-        
-        info['company'] = company
-        #Get artist name always the second tr
-        artist = soup.find("div", class_="table-wrapper").table.tbody.find_all('tr')[1].td.a.text.strip()
-        
-        
-        info['artist'] = artist
-        
-        
-        #Find and get the release date
+        # get Company Name always the first tr
+        # ============ Search the json for the company id =================
+        company_name = soup.find(
+            "div", class_="table-wrapper").table.tbody.find_all('tr')[0].td.a.text.strip()
+        company_name = company_name.split()[0]
+        print(f'Company Name: {company_name}\n')
+        company_entry = search_json(company_name, companies)
+
+        if(company_entry != None):
+            info['companies'] = [company_entry['id']]
+        else:
+            raise CompanyNotFoundException(company_name)
+
+        # ============   Get artist name always the second tr =================
+        artist_name = soup.find(
+            "div", class_="table-wrapper").table.tbody.find_all('tr')[1].td.a.text.strip()
+        artist_entry = search_json(artist_name, artists)
+
+        if(artist_entry != None):
+            info['artists'] = [artist_entry['id']]
+        else:
+            raise ArtistNotFoundException(artist_name)
+
+        # ============== Find and get the release date =================
         for i in soup.find("div", class_="table-wrapper").table.tbody.find_all('tr'):
             if(i.th.text.strip() == "発行日"):
                 release = i.td.text.strip().split('/')
@@ -109,21 +131,34 @@ def fetch_info(url, soup):
         info['release_year'] = release[0]
         info['release_month'] = release[1]
         info['release_day'] = release[2]
-        
-        #Get the price from class yen __discount
+
+        # =============== Get the price from class yen __discount =================
         price = soup.find("span", class_="yen __discount").text.strip()[1:]
-        price = int(price.replace(',', '')) #remove the comma and convert to int
+        # remove the comma and convert to int
+        price = int(price.replace(',', ''))
         price = int(round(price * .9, -2))
         info['price'] = price
-        
-        print(info)
+
+        # =============== Type (SFW or NSFW) =================
+        for i in soup.find("div", class_="table-wrapper").table.tbody.find_all('tr'):
+            if(i.th.text.strip() == "作品種別"):
+                type = i.td.text.strip()
+                break
+
+        if(type == "一般向け"):
+            info["content_level"] = "sfw"
+
+        elif(type == "18禁"):
+            info["content_level"] = "nsfw"
+
         return info
-    
+
     except requests.exceptions.RequestException as e:
         logging.error(f"Error: {e}")
-        return None 
+        return None
 
-def create_entry_object(img_name: str, artists: str, classid: str, barcode: str, price: int, release_year: str, release_month: str, release_day: str, link: str):
+
+def create_entry_object(img_name: str, artists: list, companies: list, price: int, release_year: str, release_month: str, release_day: str, content_level: str, link: str):
     """
     Create a dictionary containing the image URLs and the entry name.
 
@@ -135,16 +170,15 @@ def create_entry_object(img_name: str, artists: str, classid: str, barcode: str,
     try:
         entry = {
             "root": "goods",
-            "category": "on walls",
-            "content_level": "nsfw",
+            "category": "on walls",  # SFW or NSFW
+            "content_level": content_level,
             "image_name": f"{img_name}.jpg",
             "origins": ["9493"],  # ORIGINAL CHARACTERS
             "characters": [],
-            "companies": ["62891"],  # GOT
+            "companies": companies,
             "artists": artists,
-            # TAPESTRY, GOT TAPESTRY COLLECTION
-            "classifications": ["23392", "108691"],
-            "classifications_id" : classid, 
+            "classifications": ["23392"],
+            "classifications_id": None,
             "materials": ["41500"],  # DOUBLE SUEDE FABRIC
             "events": [],
             "release_year": release_year,
@@ -152,13 +186,13 @@ def create_entry_object(img_name: str, artists: str, classid: str, barcode: str,
             "release_day": release_day,
             "run": "standard",
             "notaxprice": price,
-            "barcode": barcode,
+            "barcode": None,
             "size": "B2",
-            "additional_info": "",
-            "title": "",
-            "original_title": "",
-            "version": "",
-            "original_ver": "",
+            "additional_info": None,
+            "title": None,
+            "original_title": None,
+            "version": None,
+            "original_ver": None,
             "width": None,
             "length": None,
             "height": None,
@@ -177,13 +211,14 @@ def create_entry_object(img_name: str, artists: str, classid: str, barcode: str,
 
         # Write the updated data back to the file
         with open('data.json', 'w') as f:
-            json.dump(data, f)
+            json.dump(data, f, ensure_ascii=False)
 
     except IndexError as e:
         print(f"Error: {e}")
 
     except Exception as e:
         print(f"Error: {e}")
+
 
 def main(index=0):
 
@@ -192,22 +227,19 @@ def main(index=0):
         # print(session.cookies)
 
         # Make a GET request to the web address
-        request = session.get(melon_urls[index]+"&adult_view=1", verify=True).content
-        # Parse the HTML content using Beautiful Soup and return an lxml element to use xpath
+        current_link = melon_urls[index].replace(" ", "")
+        request = session.get(
+            current_link+"&adult_view=1", verify=True).content
+        # Parse the HTML content using Beautiful Soup
         soup = parse_html(request)
-        img_name = fetch_images(melon_urls[index], session, soup)
-        print(f'Image File Name: {img_name}.jpg')
-        entry_info = fetch_info(melon_urls[index], soup)
+        img_name = fetch_images(current_link, session, soup)
+        print(f'Image File Name: {img_name}.jpg\n')
+        entry_info = fetch_info(soup)
+        print(f'Entry Info: {entry_info}\n')
 
-        create_entry_object(img_name, artists[index], entry_info['company'], entry_info['price'], entry_info['release_year'], entry_info['release_month'], entry_info['release_day'], melon_urls[index])
-                
-        
+        create_entry_object(img_name, entry_info['artists'], entry_info['companies'], entry_info['price'], entry_info['release_year'],
+                            entry_info['release_month'], entry_info['release_day'], entry_info['content_level'], current_link)
+
+
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-

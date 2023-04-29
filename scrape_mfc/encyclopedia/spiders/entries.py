@@ -11,7 +11,7 @@ class MfcSpider(scrapy.Spider):
                    'TBv4_Iden': "147481"
         }
         start_urls = [
-        'https://myfigurecollection.net/entry/320547',
+        'https://myfigurecollection.net/entry/324474',
         ]
         
         yield scrapy.Request(url=start_urls[0], callback=self.parse, cookies=cookies)

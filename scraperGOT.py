@@ -37,7 +37,7 @@ def is_kanji(char):
 
 def search_json(target, data):
     for item in data:
-        if target == item["original_name"]:
+        if target == item["original_name"] or target == item["name"]:
             return item
     return None
 
@@ -171,9 +171,9 @@ def fetch_info(url):
         # =================== Get artists ID ===================
         artist_name = lxml_element.xpath('//*[@id="soft_table"]/tbody/tr[2]/th/table/tbody/tr[6]/td[2]/a')[0].text.strip()
         print(f'success! artist name: {artist_name}')
-        artist = search_json(artist_name, artists)
-        if(artist != None):
-            info['artists'] = [artist['id']]
+        artist_entry = search_json(artist_name, artists)
+        if(artist_entry != None):
+            info['artists'] = [artist_entry['id']]
         else:
             raise ArtistNotFoundException(artist_name)
         

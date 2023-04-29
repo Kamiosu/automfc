@@ -13,7 +13,8 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.support.select import Select
 import scraperGOT
 from scraperGOT import getchu_urls
-
+import scraperMelon
+from scraperMelon import melon_urls
 
 # Constants
 URL = 'https://myfigurecollection.net/figure/'
@@ -56,7 +57,8 @@ one: adds an entry with only one url
 uribou: adds a uribou tapestry entry
 '''
 TYPE = "one"
-COMPANY = "Getchu"
+# COMPANY = "Getchu"
+COMPANY = "Melonbooks"
 
 
 #========================================
@@ -239,19 +241,19 @@ def section_releases(driver, entry):
             day.select_by_visible_text(entry['release_day'])
         #================= Select the run type =================
         run = Select(driver.find_element(By.NAME, 'releaseRunIds[]'))
-        if(entry['run'] != ""):
+        if(entry['run'] != None):
             run.select_by_value(RUN[entry['run']])
         #================= Enter the price =================
         if(entry['notaxprice'] != None):  
             driver.find_element(By.NAME, 'releasePrices[]').send_keys(entry['notaxprice'])
         #================= Enter the barcode=================
-        if(entry['barcode'] != ""):
+        if(entry['barcode'] != None):
             driver.find_element(By.NAME, 'releaseBarcodes[]').send_keys(entry['barcode'])
         #================= Enter the size =================
-        if(entry['size'] != ""):
+        if(entry['size'] != None):
             driver.find_element(By.NAME, 'releaseSizes[]').send_keys(SIZE[entry['size']])
         #================= Enter additional info =================
-        if(entry['additional_info'] != ""):
+        if(entry['additional_info'] != None):
             driver.find_element(By.NAME, 'releaseEvents[]').send_keys(entry['additional_info'])
 
 def section_furtherinfo(driver, entry):
@@ -341,11 +343,15 @@ def main():
     driver.get(URL)
     load_cookies(driver, COOKIES)
     time.sleep(1)
-    for i in range(len(getchu_urls)):
-        if(getchu_urls[i] != ""):
-            print(f'\nAdding entry {i+1}/{len(getchu_urls)}\n')
+    # for i in range(len(getchu_urls)):
+    for i in range(len(melon_urls)):
+        # if(getchu_urls[i] != ""):
+        if(melon_urls[i] != ""):
+            # print(f'\nAdding entry {i+1}/{len(getchu_urls)}\n')
+            print(f'\nAdding entry {i+1}/{len(melon_urls)}\n')
             driver.get(URL)
-            scraperGOT.main(i)
+            # scraperGOT.main(i)
+            scraperMelon.main(i)
             time.sleep(2)
             navigate_to_add_entry(driver)
             entry1 = process_data()[0] #Only using the first entry for now

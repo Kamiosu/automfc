@@ -2,46 +2,45 @@
     {
         "root": "goods",
         "category": "on walls",
-        "content_level": "nsfw",
-        "image_name": "574まめおじたんGOT.jpg",
+        "content_level": "sfw",
+        "image_name": "1901078tettoMelon.jpg",
         "origins": [
             "9493"
         ],
         "characters": [],
         "companies": [
-            "62891"
+            "22552"
         ],
         "artists": [
-            "172511"
+            "289373"
         ],
         "classifications": [
-            "23392",
-            "108691"
+            "23392"
         ],
-        "classifications_id": "574",
+        "classifications_id": null,
         "materials": [
             "41500"
         ],
         "events": [],
         "release_year": "2023",
-        "release_month": "08",
-        "release_day": null,
+        "release_month": "5",
+        "release_day": "7",
         "run": "standard",
-        "notaxprice": 3900,
-        "barcode": "4538806063296",
+        "notaxprice": 3600,
+        "barcode": null,
         "size": "B2",
-        "additional_info": "",
-        "title": "",
-        "original_title": "",
-        "version": "",
-        "original_ver": "",
+        "additional_info": null,
+        "title": null,
+        "original_title": null,
+        "version": null,
+        "original_ver": null,
         "width": null,
         "length": null,
         "height": null,
         "weight": null,
         "counterfeit": null,
         "links": [
-            "https://www.getchu.com/soft.phtml?id=1227333"
+            "https://www.melonbooks.co.jp/detail/detail.php?product_id=1901078"
         ]
     }
 ]
