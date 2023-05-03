@@ -13,9 +13,7 @@ IMAGES_PATH = "/Users/kamiosu/Documents/automfc2023/"
 
 # Make sure that every link is formated so that there are no empty index at the front of the lists
 getchu_urls = [
-    "https://www.getchu.com/soft.phtml?id=1227331",
-    "https://www.getchu.com/soft.phtml?id=1227332",
-    "https://www.getchu.com/soft.phtml?id=1227333"
+
 ]
 
 with open('database/artists.json', 'r') as f:
@@ -262,8 +260,7 @@ def main(index=0):
                             )
         
         print('success! entry created')
-                 
-            
+                    
         
 if __name__ == "__main__":
     main()
