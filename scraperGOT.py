@@ -37,7 +37,9 @@ def is_kanji(char):
 
 def search_json(target, data):
     for item in data:
-        if target == item["original_name"] or target == item["name"]:
+        if target.replace(" ", '').lower() == str(item["original_name"]).replace(" ",'').lower():
+            return item
+        if target.replace("", '').lower() == str(item["name"]).replace(" ",'').lower():
             return item
     return None
 

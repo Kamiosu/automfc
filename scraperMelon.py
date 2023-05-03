@@ -14,7 +14,7 @@ IMAGES_PATH = "/Users/kamiosu/Documents/automfc2023/"
 
 # Make sure that every link is formated so that there are no empty index at the front of the lists
 melon_urls = [
-
+ 
 ]
 
 with open('database/companies.json') as f:
