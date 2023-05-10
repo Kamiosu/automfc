@@ -11,10 +11,11 @@ from selenium.common.exceptions import ElementNotSelectableException, ElementNot
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.select import Select
-import scraperGOT
-from scraperGOT import getchu_urls
-import scraperMelon
-from scraperMelon import melon_urls
+from scrape_entry import scraperGOT
+from scrape_entry.scraperGOT import getchu_urls
+
+from scrape_entry import melonTapestry
+from scrape_entry.melonTapestry import melon_urls
 
 # Constants
 URL = 'https://myfigurecollection.net/figure/'
@@ -344,25 +345,40 @@ def add_entry(driver, entry):
         print(e)
     
     
+def add_got_tapestry(driver):
+    for i in range(len(getchu_urls)):
+        if(getchu_urls[i] != ""):
+            print(f'\nAdding entry {i+1}/{len(getchu_urls)}\n')
+            driver.get(URL)
+            scraperGOT.main(i)    
+    
+    
+def add_melon_tapestry(driver):
+    for i in range(len(melon_urls)):
+        if(melon_urls[i] != ""):
+            print(f'\nAdding entry {i+1}/{len(melon_urls)}\n')
+            driver.get(URL)
+            melonTapestry.main(i)
+            
+            
+def add_melon_doujin(driver):
+    pass
+    
 def main():
     driver = initialize_driver()
     driver.get(URL)
     load_cookies(driver, COOKIES)
-    time.sleep(1)
-    # for i in range(len(getchu_urls)):
-    for i in range(len(melon_urls)):
-        # if(getchu_urls[i] != ""):
-        if(melon_urls[i] != ""):
-            # print(f'\nAdding entry {i+1}/{len(getchu_urls)}\n')
-            print(f'\nAdding entry {i+1}/{len(melon_urls)}\n')
-            driver.get(URL)
-            # scraperGOT.main(i)
-            scraperMelon.main(i)
-            time.sleep(2)
-            navigate_to_add_entry(driver)
-            entry1 = process_data()[0] #Only using the first entry for now
-            add_entry(driver, entry1)   #Add the entry
-            time.sleep(3)
+    time.sleep(1)         
+    
+    # add_got_tapestry(driver)
+    add_melon_tapestry(driver)   
+    
+    
+    time.sleep(2)
+    navigate_to_add_entry(driver)
+    entry1 = process_data()[0] #Only using the first entry for now
+    add_entry(driver, entry1)   #Add the entry
+    time.sleep(3)
    
     
 if __name__ == "__main__":

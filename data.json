@@ -1,1 +1,48 @@
-[{"root": "goods", "category": "on walls", "content_level": "nsfw", "image_name": "1910457だにまるMelon.jpg", "origins": ["9493"], "characters": [], "companies": ["62891"], "artists": ["183087"], "classifications": ["23392"], "classifications_id": null, "materials": ["41500"], "events": [], "release_year": "2023", "release_month": "06", "release_day": "30", "run": "standard", "notaxprice": 3900, "barcode": null, "size": "B2", "additional_info": null, "title": null, "original_title": null, "version": null, "original_ver": null, "width": null, "length": null, "height": null, "weight": null, "counterfeit": null, "links": ["https://www.melonbooks.co.jp/detail/detail.php?product_id=1910457"]}]
+[
+    {
+        "root": "goods",
+        "category": "on walls",
+        "content_level": "nsfw",
+        "image_name": "1739058あれっくすMelon.jpg",
+        "origins": [
+            "9493"
+        ],
+        "characters": [],
+        "companies": [
+            "198908"
+        ],
+        "artists": [
+            "198888"
+        ],
+        "classifications": [
+            "23392"
+        ],
+        "classifications_id": null,
+        "materials": [
+            "41500"
+        ],
+        "events": [
+            "302808"
+        ],
+        "release_year": 700,
+        "release_month": "2022",
+        "release_day": "12",
+        "run": "standard",
+        "notaxprice": "31",
+        "barcode": null,
+        "size": "B5",
+        "additional_info": null,
+        "title": null,
+        "original_title": null,
+        "version": null,
+        "original_ver": null,
+        "width": null,
+        "length": null,
+        "height": null,
+        "weight": null,
+        "counterfeit": null,
+        "links": [
+            "https://www.melonbooks.co.jp/detail/detail.php?product_id=1739058"
+        ]
+    }
+]

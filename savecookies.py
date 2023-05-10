@@ -2,6 +2,8 @@ import pickle
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+import os
+from dotenv import load_dotenv
 
 def main(): 
     driver = initialize_driver()
@@ -22,8 +24,9 @@ def click_sign_in(driver):
 
 
 def sign_in(driver):
-    USERNAME = ''
-    PASSWORD = ''
+    load_dotenv()
+    USERNAME = os.getenv('USERNAME')
+    PASSWORD = os.getenv('PASSWORD')
 
     username = driver.find_element(By.NAME, 'username')
     username.send_keys(USERNAME)

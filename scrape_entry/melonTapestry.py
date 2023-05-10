@@ -14,14 +14,15 @@ IMAGES_PATH = "/Users/kamiosu/Documents/automfc2023/"
 
 # Make sure that every link is formated so that there are no empty index at the front of the lists
 melon_urls = [
- 
+ "https://www.melonbooks.co.jp/detail/detail.php?product_id=1935780"
 ]
 
 with open('database/companies.json') as f:
     companies = json.load(f)
 with open('database/artists.json') as f:
     artists = json.load(f)
-
+with open('database/events.json') as f:
+    events = json.load(f)
 
 def create_melon_session():
     """Create a requests session object to handle cookies automatically."""
@@ -37,7 +38,7 @@ def search_json(target, data):
     for item in data:
         if target.replace(" ", '').lower() == str(item["original_name"]).replace(" ",'').lower():
             return item
-        if target.replace("", '').lower() == str(item["name"]).replace(" ",'').lower():
+        if target.replace(" ", '').lower() == str(item["name"]).replace(" ",'').lower():
             return item
     return None
 
@@ -97,6 +98,7 @@ def fetch_info(soup):
             'release_year': None,
             'release_month': None,
             'release_day': None,
+            'events': None,
             'content_level': None,
             }
     try:
@@ -104,7 +106,7 @@ def fetch_info(soup):
         # ============ Search the json for the company id =================
         company_name = soup.find(
             "div", class_="table-wrapper").table.tbody.find_all('tr')[0].td.a.text.strip()
-        company_name = company_name.split()[0]
+        company_name = ' '.join((company_name.split()[0:len(company_name.split())-1]))
         print(f'Company Name: {company_name}\n')
         company_entry = search_json(company_name, companies)
 
@@ -128,9 +130,10 @@ def fetch_info(soup):
             if(i.th.text.strip() == "発行日"):
                 release = i.td.text.strip().split('/')
                 break
-        info['release_year'] = release[0]
-        info['release_month'] = release[1]
-        info['release_day'] = release[2]
+        if (release != None):
+            info['release_year'] = release[0]
+            info['release_month'] = release[1]
+            info['release_day'] = release[2]
 
         # =============== Get the price from class yen __discount =================
         price = soup.find("span", class_="yen __discount").text.strip()[1:]
@@ -139,17 +142,27 @@ def fetch_info(soup):
         price = int(round(price * .9, -2))
         info['price'] = price
 
+        # =============== Event =================
+        for i in soup.find("div", class_="table-wrapper").table.tbody.find_all('tr'):
+            if(i.th.text.strip() == "イベント"):
+                event = i.td.text.strip()
+                break
+        if (event != None):
+            event_entry = search_json(event, events)
+            info['events'] = [event_entry['id']]
+        
         # =============== Type (SFW or NSFW) =================
         for i in soup.find("div", class_="table-wrapper").table.tbody.find_all('tr'):
             if(i.th.text.strip() == "作品種別"):
                 type = i.td.text.strip()
                 break
+            
+        if(type != None):
+            if(type == "一般向け"):
+                info["content_level"] = "sfw"
 
-        if(type == "一般向け"):
-            info["content_level"] = "sfw"
-
-        elif(type == "18禁"):
-            info["content_level"] = "nsfw"
+            elif(type == "18禁"):
+                info["content_level"] = "nsfw"
 
         return info
 
@@ -158,7 +171,8 @@ def fetch_info(soup):
         return None
 
 
-def create_entry_object(img_name: str, artists: list, companies: list, price: int, release_year: str, release_month: str, release_day: str, content_level: str, link: str):
+def create_entry_object(content_level: str, img_name: str,  companies: list, artists: list, events:list, release_year: str, release_month: str, release_day: str, price: int, link: str):
+    
     """
     Create a dictionary containing the image URLs and the entry name.
 
@@ -180,7 +194,7 @@ def create_entry_object(img_name: str, artists: list, companies: list, price: in
             "classifications": ["23392"],
             "classifications_id": None,
             "materials": ["41500"],  # DOUBLE SUEDE FABRIC
-            "events": [],
+            "events": events,
             "release_year": release_year,
             "release_month": release_month,
             "release_day": release_day,
@@ -237,8 +251,8 @@ def main(index=0):
         entry_info = fetch_info(soup)
         print(f'Entry Info: {entry_info}\n')
 
-        create_entry_object(img_name, entry_info['artists'], entry_info['companies'], entry_info['price'], entry_info['release_year'],
-                            entry_info['release_month'], entry_info['release_day'], entry_info['content_level'], current_link)
+        create_entry_object(entry_info['content_level'], img_name,  entry_info['companies'], entry_info['artists'], entry_info['events'], entry_info['price'], entry_info['release_year'],
+                            entry_info['release_month'], entry_info['release_day'],  current_link)
 
 
 if __name__ == "__main__":
