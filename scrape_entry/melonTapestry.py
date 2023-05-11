@@ -2,8 +2,8 @@ from bs4 import BeautifulSoup
 import logging
 import requests
 import json
-from ArtistNotFoundException import ArtistNotFoundException
-from CompanyNotFoundException import CompanyNotFoundException
+from scrape_entry.ArtistNotFoundException import ArtistNotFoundException
+from scrape_entry.CompanyNotFoundException import CompanyNotFoundException
 requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'ALL:@SECLEVEL=1'
 
 HEADERS = {

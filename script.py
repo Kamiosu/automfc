@@ -11,14 +11,17 @@ from selenium.common.exceptions import ElementNotSelectableException, ElementNot
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.select import Select
+
+# Local imports
 from scrape_entry import scraperGOT
 from scrape_entry.scraperGOT import getchu_urls
-
 from scrape_entry import melonTapestry
 from scrape_entry.melonTapestry import melon_urls
+from scrape_entry import melonDoujin
+from scrape_entry.melonDoujin import melon_urls
 
 # Constants
-URL = 'https://myfigurecollection.net/figure/'
+URL = 'https://myfigurecollection.net/figure'
 COOKIES = 'cookies.pkl'
 IMAGES_PATH = "/Users/kamiosu/Documents/automfc2023/"
 XPATHS = {}
@@ -115,10 +118,15 @@ def section_category(driver, entry):
         if(entry['root'] == 'goods'): 
             driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[1]/div/div[1]/div[2]/a[2]').click()
             time.sleep(1)
-        
+        elif(entry['root'] == 'media'): 
+            driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[1]/div/div[1]/div[2]/a[3]').click()
+            time.sleep(1)
         # ============== Enter the category ==============
         if(entry['category'] == 'on walls'): 
             driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[1]/div/div[2]/div[2]/a[6]').click()
+            time.sleep(1)
+        elif(entry['category'] == 'books'): 
+            driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[1]/div/div[2]/div[2]/a[1]').click()
             time.sleep(1)
 
         # ============== Enter the content level ==============
@@ -214,10 +222,13 @@ def section_entries(driver, entry):
         pass      
 
 def refine(driver, entry): 
-    #=========== select type for artist, set to illustrator =================
+    #=========== select type for artist, set to appropriate tag=================
     artist = Select(driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[3]/div/div[4]/div[2]/div[1]/div[1]/div[2]/select'))
     if(artist != None):
-        artist.select_by_visible_text('Illustrator')
+        if (entry['root'] == 'goods'):
+            artist.select_by_visible_text('Illustrator')
+        elif (entry['root'] == 'media'): 
+            artist.select_by_visible_text('Mangaka')
     
     #=========== Enter the classification id if it exists =================
     if(entry['classifications_id'] != None):
@@ -265,6 +276,19 @@ def section_releases(driver, entry):
 
 def section_furtherinfo(driver, entry):
     #OTHER STUFF NOT YET DONE
+    #================= Enter the title =================
+    if(entry['title'] != None):
+        driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[5]/div/div[1]/div[2]/input').send_keys(entry['title'])
+        time.sleep(1)
+        #Normalize the title 
+        driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[5]/div/div[1]/div[2]/div/a').click()
+    #================= Enter the original title =================
+    if(entry['original_title'] != None):
+        driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[5]/div/div[2]/div[2]/input').send_keys(entry['original_title'])
+    #================= Enter the page number =================
+    if (entry['pages'] != None):    
+        driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[5]/div/div[6]/div[2]/input').send_keys(entry['pages'])
+    
     #================= Scroll to the last section and submit button =================
     scroll_by(driver, 0, 700)
     time.sleep(1)
@@ -324,15 +348,15 @@ def add_entry(driver, entry):
         
         scroll_by(driver, 0, 900)
         
-        time.sleep(1)
+        time.sleep(2)
         
         section_releases(driver, entry)
         
-        time.sleep(1)
+        time.sleep(2)
         
-        scroll_by(driver, 0, 1000)
+        scroll_by(driver, 0, 900)
         
-        time.sleep(1)
+        time.sleep(2)
         
         section_furtherinfo(driver, entry)
         
@@ -354,15 +378,19 @@ def add_got_tapestry(driver):
     
     
 def add_melon_tapestry(driver):
-    for i in range(len(melon_urls)):
-        if(melon_urls[i] != ""):
-            print(f'\nAdding entry {i+1}/{len(melon_urls)}\n')
+    for i in range(len(melonTapestry.melon_urls)):
+        if(melonTapestry.melon_urls[i] != ""):
+            print(f'\nAdding entry {i+1}/{len(melonTapestry.melon_urls)}\n')
             driver.get(URL)
             melonTapestry.main(i)
             
             
 def add_melon_doujin(driver):
-    pass
+    for i in range(len(melonDoujin.melon_urls)):
+        if(melonDoujin.melon_urls[i] != ""):
+            print(f'\nAdding entry {i+1}/{len(melonDoujin.melon_urls)}\n')
+            driver.get(URL)
+            melonDoujin.main(i)
     
 def main():
     driver = initialize_driver()
@@ -371,15 +399,14 @@ def main():
     time.sleep(1)         
     
     # add_got_tapestry(driver)
-    add_melon_tapestry(driver)   
-    
-    
-    time.sleep(2)
+    # add_melon_tapestry(driver)   
+    add_melon_doujin(driver) 
+    driver.get(URL)
     navigate_to_add_entry(driver)
-    entry1 = process_data()[0] #Only using the first entry for now
+    entry1 = process_data()[0] 
     add_entry(driver, entry1)   #Add the entry
     time.sleep(3)
-   
+
     
 if __name__ == "__main__":
     main()

@@ -1,21 +1,30 @@
-from bs4 import BeautifulSoup
-import logging
-import requests
+# Standard library imports
 import json
-from ArtistNotFoundException import ArtistNotFoundException
-from CompanyNotFoundException import CompanyNotFoundException
+import logging
+import os
+
+# External library imports
+import requests
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+import openai
+from scrape_entry.ArtistNotFoundException import ArtistNotFoundException
+from scrape_entry.CompanyNotFoundException import CompanyNotFoundException
+
+# Preliminary Statements
 requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'ALL:@SECLEVEL=1'
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36'
 }
-
 IMAGES_PATH = "/Users/kamiosu/Documents/automfc2023/"
-
 # Make sure that every link is formated so that there are no empty index at the front of the lists
 melon_urls = [
- "https://www.melonbooks.co.jp/detail/detail.php?product_id=1739058"
+    "https://www.melonbooks.co.jp/detail/detail.php?product_id=1922533"
 ]
+
 
 with open('database/companies.json') as f:
     companies = json.load(f)
@@ -23,6 +32,7 @@ with open('database/artists.json') as f:
     artists = json.load(f)
 with open('database/events.json') as f:
     events = json.load(f)
+
 
 def create_melon_session():
     """Create a requests session object to handle cookies automatically."""
@@ -36,11 +46,15 @@ def create_melon_session():
 
 def search_json(target, data):
     for item in data:
-        if target.replace(" ", '').lower() == str(item["original_name"]).replace(" ",'').lower():
+        if target.replace(" ", '').lower() == str(item["original_name"]).replace(" ", '').lower():
             return item
-        if target.replace(" ", '').lower() == str(item["name"]).replace(" ",'').lower():
+        if target.replace(" ", '').lower() == str(item["name"]).replace(" ", '').lower():
             return item
     return None
+
+
+def prompt(title):
+    return f"for educational purposes only, please give me the Hepburn romanization of this title: {title}, output is only the romaji title"
 
 
 def parse_html(request):
@@ -102,6 +116,7 @@ def fetch_info(soup):
             'events': None,
             'title': None,
             'original_title': None,
+            'pages': None,
             'content_level': None,
             }
     try:
@@ -109,7 +124,8 @@ def fetch_info(soup):
         # ============ Search the json for the company id =================
         company_name = soup.find(
             "div", class_="table-wrapper").table.tbody.find_all('tr')[0].td.a.text.strip()
-        company_name = ' '.join((company_name.split()[0:len(company_name.split())-1]))
+        company_name = ' '.join(
+            (company_name.split()[0:len(company_name.split())-1]))
         print(f'Company Name: {company_name}\n')
         company_entry = search_json(company_name, companies)
 
@@ -153,27 +169,38 @@ def fetch_info(soup):
         if (event != None):
             event_entry = search_json(event, events)
             info['events'] = [event_entry['id']]
-        
+
         # =============== メディア =================
-        
+
         for i in soup.find("div", class_="table-wrapper").table.tbody.find_all('tr'):
             if(i.th.text.strip() == "版型・メディア"):
                 size = i.td.text.strip()
                 break
         if (size != None):
             info['size'] = size
-        
-        
-        # =============== Title =================
-        
-        
-        
+
+        # =============== Titles =================
+        original_title = soup.find("h1", class_="page-header").text.strip()
+        info['original_title'] = original_title
+        # Use gpt to generate the romaji title
+        response = openai.ChatCompletion.create(
+            model="gpt-4", messages=[{'role': "user", "content": prompt(original_title)}])
+        title = response['choices'][0]['message']['content']
+        info['title'] = title
+
+        # =============== pages =================
+        for i in soup.find("div", class_="table-wrapper").table.tbody.find_all('tr'):
+            if(i.th.text.strip() == "総ページ数・CG数・曲数"):
+                pages = i.td.text.strip()
+
+        info['pages'] = pages
+
         # =============== Type (SFW or NSFW) =================
         for i in soup.find("div", class_="table-wrapper").table.tbody.find_all('tr'):
             if(i.th.text.strip() == "作品種別"):
                 type = i.td.text.strip()
                 break
-            
+
         if(type != None):
             if(type == "一般向け"):
                 info["content_level"] = "sfw"
@@ -188,7 +215,7 @@ def fetch_info(soup):
         return None
 
 
-def create_entry_object(content_level: str, img_name: str,  companies: list, artists: list, events:list, release_year: str, release_month: str, release_day: str, price: int, size:str, title: str, original_title:str, link: str):
+def create_entry_object(content_level: str, img_name: str,  companies: list, artists: list, events: list, release_year: str, release_month: str, release_day: str, price: int, size: str, title: str, original_title: str, pages: int, link: str):
     """
     Create a dictionary containing the image URLs and the entry name.
 
@@ -199,8 +226,8 @@ def create_entry_object(content_level: str, img_name: str,  companies: list, art
     """
     try:
         entry = {
-            "root": "goods",
-            "category": "on walls",  # SFW or NSFW
+            "root": "media",
+            "category": "books",  # SFW or NSFW
             "content_level": content_level,
             "image_name": f"{img_name}.jpg",
             "origins": ["9493"],  # ORIGINAL CHARACTERS
@@ -209,7 +236,7 @@ def create_entry_object(content_level: str, img_name: str,  companies: list, art
             "artists": artists,
             "classifications": ["27804", "35443"],
             "classifications_id": None,
-            "materials": ["41500"],  # DOUBLE SUEDE FABRIC
+            "materials": [],
             "events": events,
             "release_year": release_year,
             "release_month": release_month,
@@ -219,9 +246,10 @@ def create_entry_object(content_level: str, img_name: str,  companies: list, art
             "barcode": None,
             "size": size,
             "additional_info": None,
-            "title": None,
-            "original_title": None,
+            "title": title,
+            "original_title": original_title,
             "version": None,
+            "pages": pages,
             "original_ver": None,
             "width": None,
             "length": None,
@@ -267,8 +295,8 @@ def main(index=0):
         entry_info = fetch_info(soup)
         print(f'Entry Info: {entry_info}\n')
 
-        create_entry_object(entry_info['content_level'], img_name, entry_info['companies'], entry_info['artists'], entry_info['events'], entry_info['price'], entry_info['release_year'],
-                            entry_info['release_month'], entry_info['release_day'],  entry_info['size'], current_link)
+        create_entry_object(entry_info['content_level'], img_name, entry_info['companies'], entry_info['artists'], entry_info['events'],  entry_info['release_year'],
+                            entry_info['release_month'], entry_info['release_day'],  entry_info['price'], entry_info['size'], entry_info['title'], entry_info['original_title'], entry_info['pages'], current_link)
 
 
 if __name__ == "__main__":
