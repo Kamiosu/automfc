@@ -282,6 +282,7 @@ def section_furtherinfo(driver, entry):
         time.sleep(1)
         #Normalize the title 
         driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[5]/div/div[1]/div[2]/div/a').click()
+        time.sleep(.5)
     #================= Enter the original title =================
     if(entry['original_title'] != None):
         driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/section[5]/div/div[2]/div[2]/input').send_keys(entry['original_title'])
@@ -406,7 +407,7 @@ def main():
     entry1 = process_data()[0] 
     add_entry(driver, entry1)   #Add the entry
     time.sleep(3)
-
+    print("Finished Adding Entry!")
     
 if __name__ == "__main__":
     main()

@@ -22,7 +22,8 @@ HEADERS = {
 IMAGES_PATH = "/Users/kamiosu/Documents/automfc2023/"
 # Make sure that every link is formated so that there are no empty index at the front of the lists
 melon_urls = [
-    "https://www.melonbooks.co.jp/detail/detail.php?product_id=1922533"
+    "https://www.melonbooks.co.jp/detail/detail.php?product_id=1939151", 
+
 ]
 
 
@@ -126,7 +127,7 @@ def fetch_info(soup):
             "div", class_="table-wrapper").table.tbody.find_all('tr')[0].td.a.text.strip()
         company_name = ' '.join(
             (company_name.split()[0:len(company_name.split())-1]))
-        print(f'Company Name: {company_name}\n')
+        # print(f'Company Name: {company_name}\n')
         company_entry = search_json(company_name, companies)
 
         if(company_entry != None):
