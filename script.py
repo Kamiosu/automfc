@@ -272,7 +272,12 @@ def section_entries(driver, entry):
 
 
 def refine(driver, entry):
-    # =========== select type for artist, set to appropriate tag=================
+    # =========== select type for Company, set to appropriate tag =================
+    company = Select(driver.find_element(By.XPATH, '//*[@id="main"]/div/div/form/div[3]/section/div/div[3]/div[2]/div[1]/div/div[2]/select'))
+    if (company != None): 
+        if (entry['root'] == 'media'): 
+            company.select_by_visible_text('Circle')    
+    # =========== select type for artist, set to appropriate tag =================
     artist = Select(driver.find_element(
         By.XPATH, '//*[@id="main"]/div/div/form/div[3]/section/div/div[4]/div[2]/div[1]/div/div[2]/select'))
     if(artist != None):
@@ -292,10 +297,12 @@ def section_releases(driver, entry):
     # ================= ADD A RELEASE DATE + RELEVANT INFO =================
     driver.find_element(
         By.XPATH, '//*[@id="main"]/div/div/form/div[4]/section/div/div[1]/div/div[2]/a').click()
+    time.sleep(1)
+    
     if(entry['category'] == 'books' and entry['events'] != None):
         driver.find_element(
             By.XPATH, '//*[@id="main"]/div/div/form/div[4]/section/div/div[1]/div/div[2]/a').click()
-
+    scroll_by(driver, 50)
     time.sleep(1)
     # ================= Select the release year =================
     year = Select(driver.find_element(By.NAME, 'releaseYears[]'))
@@ -401,7 +408,7 @@ def section_furtherinfo(driver, entry):
     if(entry['content_level'] == "nsfw" or entry['content_level'] == "nsfw+"):
         driver.find_element(By.XPATH, '//*[@id="rd-rating-3"]').click()
 
-    scroll_by(driver, 0, 700)
+    scroll_by(driver, 0, 800)
     time.sleep(1)
 
     if(TYPE == "uribou"):
@@ -448,13 +455,13 @@ def add_entry(driver, entry):
 
         section_entries(driver, entry)
 
-        scroll_by(driver, 0, 800)
+        scroll_by(driver, 0, 700)
 
         time.sleep(1)
 
         refine(driver, entry)
 
-        scroll_by(driver, 0, 1200)
+        scroll_by(driver, 0, 1150)
 
         time.sleep(2)
 
@@ -462,7 +469,7 @@ def add_entry(driver, entry):
 
         time.sleep(2)
 
-        scroll_by(driver, 0, 800)
+        scroll_by(driver, 0, 900)
 
         time.sleep(2)
 

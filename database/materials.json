@@ -4540,5 +4540,22 @@
       "category": "materials",
       "name": "Acrylonitrile Styrene",
       "original_name": "アクリロニトリル スチレン"
-   }
-]
+   },
+   {
+      "id": "325375",
+      "category": "materials",
+      "name": "Fiberboard",
+      "original_name": "ファイバーボード"
+   },
+   {
+      "id": "326741",
+      "category": "materials",
+      "name": "Polyester Fiber",
+      "original_name": " "
+   },
+   {
+      "id": "327454",
+      "category": "materials",
+      "name": "Polyester Canvas",
+      "original_name": "ポリエステルキャンバス"
+   }]

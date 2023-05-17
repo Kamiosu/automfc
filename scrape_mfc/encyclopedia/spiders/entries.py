@@ -11,7 +11,7 @@ class MfcSpider(scrapy.Spider):
                    'TBv4_Iden': "147481"
         }
         start_urls = [
-        'https://myfigurecollection.net/entry/324474',
+        'https://myfigurecollection.net/entry/324529',
         ]
         
         yield scrapy.Request(url=start_urls[0], callback=self.parse, cookies=cookies)
@@ -31,8 +31,9 @@ class MfcSpider(scrapy.Spider):
                 }
             print(data)     
             with open(path+f'{data["category"]}.json', 'a') as f: 
+                f.write(',')
                 json.dump(data, f, ensure_ascii=False)
-                f.write(',')      
+                
         except Exception as e:
             print(e)
             pass
