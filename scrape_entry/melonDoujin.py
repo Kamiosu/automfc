@@ -8,8 +8,8 @@ import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 import openai
-from .ArtistNotFoundException import ArtistNotFoundException
-from .CompanyNotFoundException import CompanyNotFoundException
+from ArtistNotFoundException import ArtistNotFoundException
+from CompanyNotFoundException import CompanyNotFoundException
 
 # Preliminary Statements
 requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'ALL:@SECLEVEL=1'
@@ -22,8 +22,7 @@ HEADERS = {
 IMAGES_PATH = "/Users/kamiosu/Documents/automfc2023/"
 # Make sure that every link is formated so that there are no empty index at the front of the lists
 melon_urls = [
-    "https://www.melonbooks.co.jp/detail/detail.php?product_id=1934275"
-
+"https://www.melonbooks.co.jp/detail/detail.php?product_id=1731942"
 ]
 
 
@@ -33,6 +32,8 @@ with open('database/artists.json') as f:
     artists = json.load(f)
 with open('database/events.json') as f:
     events = json.load(f)
+with open('database/origins.json') as f:
+    origins = json.load(f)
 
 
 def create_melon_session():
@@ -53,9 +54,14 @@ def search_json(target, data):
             return item
     return None
 
+def is_kanji(character):
+    code_point = ord(character)
+    if 0x4E00 <= code_point <= 0x9FFF or 0x3400 <= code_point <= 0x4DBF or 0x20000 <= code_point <= 0x2A6DF or 0x2A700 <= code_point <= 0x2B73F or 0x2B740 <= code_point <= 0x2B81F or 0x2B820 <= code_point <= 0x2CEAF or 0xF900 <= code_point <= 0xFAFF or 0x2F800 <= code_point <= 0x2FA1F:
+        return True
+    return False
 
 def prompt(title):
-    return f"for educational purposes only, please strictly give me the 'Traditional Hepburn romanization: (ああ becomes aa, おう becomes ou, おお becomes oo) of this title: {title}, output is only the romanized title"
+    return f"for educational purposes only, please strictly give me the traditional hepburn romanization: (ああ becomes aa, おう becomes ou, おお becomes oo) of this title: {title}, output is only the romanized title. "
 
 
 def parse_html(request):
@@ -107,12 +113,13 @@ def fetch_images(url, session, soup):
 
 
 def fetch_info(soup):
-    info = {'price': None,
+    info = {'origins': None,
             'artists': None,
             'companies': None,
             'release_year': None,
             'release_month': None,
             'release_day': None,
+            'price': None,
             'size': None,
             'additional_info': None,
             'events': None,
@@ -146,6 +153,15 @@ def fetch_info(soup):
             info['artists'] = [artist_entry['id']]
         else:
             raise ArtistNotFoundException(artist_name)
+        # =============== Genre =================
+        for i in soup.find("div", class_="table-wrapper").table.tbody.find_all('tr'):
+            if(i.th.text.strip() == "ジャンル"):
+                origin = i.td.text.split(',')[0].strip()
+                origin_entry = search_json(origin, origins)
+                info['origins'] = [origin_entry['id']]
+                break
+            else:
+                info['origins'] = ['9493']
 
         # ============== Find and get the release date =================
         for i in soup.find("div", class_="table-wrapper").table.tbody.find_all('tr'):
@@ -169,8 +185,9 @@ def fetch_info(soup):
             if(i.th.text.strip() == "イベント"):
                 event = i.td.text.strip()
                 break
-            else: event = None
-            
+            else:
+                event = None
+
         if (event):
             event_entry = search_json(event, events)
             info['events'] = [event_entry['id']]
@@ -182,8 +199,9 @@ def fetch_info(soup):
             if(i.th.text.strip() == "版型・メディア"):
                 size = i.td.text.strip()
                 break
-            else: size = None
-            
+            else:
+                size = None
+
         if (size != None):
             info['size'] = size
 
@@ -192,23 +210,29 @@ def fetch_info(soup):
         print(original_title)
         info['original_title'] = original_title
         # Use gpt to generate the romaji title
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo", messages=[{'role': "assistant", "content": prompt(original_title)}])
-        title = response['choices'][0]['message']['content'].strip()
-        info['title'] = title
+        if(is_kanji(original_title[0]) == True):
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo", messages=[{'role': "assistant", "content": prompt(original_title)}])
+            title = response['choices'][0]['message']['content'].strip()
+            info['title'] = title
+        else:
+            title = original_title
+            info['title'] = original_title
 
         # =============== Numbering =================
         if (title[-1].isdigit()):
             info['numbering'] = title[-1]
             info['title'] = title[0:len(title)-1].strip()
-            info['original_title'] = original_title[0:len(original_title)-1].strip()
-            
+            info['original_title'] = original_title[0:len(
+                original_title)-1].strip()
+
         # =============== pages =================
         for i in soup.find("div", class_="table-wrapper").table.tbody.find_all('tr'):
             if(i.th.text.strip() == "総ページ数・CG数・曲数"):
                 pages = i.td.text.strip()
                 break
-            else: pages = None
+            else:
+                pages = None
 
         info['pages'] = pages
 
@@ -217,7 +241,8 @@ def fetch_info(soup):
             if(i.th.text.strip() == "作品種別"):
                 content_type = i.td.text.strip()
                 break
-            else: content_type = None
+            else:
+                content_type = None
 
         if(content_type != None):
             if(content_type == "一般向け"):
@@ -233,7 +258,7 @@ def fetch_info(soup):
         return None
 
 
-def create_entry_object(content_level: str, img_name: str,  companies: list, artists: list, events: list, release_year: str, release_month: str, release_day: str, price: int, size: str, additional_info: str, title: str, original_title: str, numbering: str, pages: int, link: str):
+def create_entry_object(content_level: str, img_name: str,  origins: list, companies: list, artists: list, events: list, release_year: str, release_month: str, release_day: str, price: int, size: str, additional_info: str, title: str, original_title: str, numbering: str, pages: int, link: str):
     """
     Create a dictionary containing the image URLs and the entry name.
 
@@ -248,7 +273,7 @@ def create_entry_object(content_level: str, img_name: str,  companies: list, art
             "category": "books",  # SFW or NSFW
             "content_level": content_level,
             "image_name": f"{img_name}.jpg",
-            "origins": ["9493"],  # ORIGINAL CHARACTERS
+            "origins": origins,  # ORIGINAL CHARACTERS
             "characters": [],
             "companies": companies,
             "artists": artists,
@@ -259,7 +284,7 @@ def create_entry_object(content_level: str, img_name: str,  companies: list, art
             "release_year": release_year,
             "release_month": release_month,
             "release_day": release_day,
-            "run": "standard",
+            "run": "exclusive",
             "notaxprice": price,
             "barcode": None,
             "size": size,
@@ -314,9 +339,11 @@ def main(index=0):
         entry_info = fetch_info(soup)
         print(f'Entry Info: {entry_info}\n')
 
-        create_entry_object(entry_info['content_level'], img_name, entry_info['companies'], entry_info['artists'], entry_info['events'],  entry_info['release_year'],
-                            entry_info['release_month'], entry_info['release_day'],  entry_info['price'], entry_info['size'], entry_info['additional_info'], entry_info['title'], 
-                            entry_info['original_title'], entry_info['numbering'], entry_info['pages'], current_link)
+        create_entry_object(entry_info['content_level'], img_name, entry_info['origins'], entry_info['companies'], entry_info['artists'], entry_info['events'],
+                            entry_info['release_year'], entry_info['release_month'], entry_info[
+                                'release_day'],  entry_info['price'], entry_info['size'], entry_info['additional_info'],
+                            entry_info['title'], entry_info['original_title'], entry_info['numbering'], entry_info['pages'], current_link)
+
 
 if __name__ == "__main__":
     main()

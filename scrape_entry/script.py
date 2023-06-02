@@ -13,14 +13,16 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.support.select import Select
 
 # Local imports
-from scrape_entry import scraperGOT
-from scrape_entry.scraperGOT import getchu_urls
-from scrape_entry import melonTapestry
-from scrape_entry.melonTapestry import melon_urls
-from scrape_entry import melonDoujin
-from scrape_entry.melonDoujin import melon_urls
-from scrape_entry.ArtistNotFoundException import ArtistNotFoundException
-from scrape_entry.CompanyNotFoundException import CompanyNotFoundException
+import scraperGOT
+from scraperGOT import getchu_urls
+import melonTapestry
+from melonTapestry import melon_urls
+import melonDoujin
+from melonDoujin import melon_urls
+import melonUribou
+from melonUribou import melon_urls
+# from scrape_entry.ArtistNotFoundException import ArtistNotFoundException
+# from scrape_entry.CompanyNotFoundException import CompanyNotFoundException
 
 # Constants
 URL = 'https://myfigurecollection.net/figure'
@@ -35,27 +37,6 @@ RUN = {
     'prize': '5',
     'unknown': '7',  # idk why this is even 7
 }
-SIZE = {
-    'a0': 'A0',
-    'a1': 'A1',
-    'a2': 'A2',
-    'a3': 'A3',
-    'a4': 'A4',
-    'a5': 'A5',
-    'a6': 'A6',
-    'b0': 'B0',
-    'b1': 'B1',
-    'b2': 'B2',
-    'b3': 'B3',
-    'b4': 'B4',
-    'b5': 'B5',
-    'b6': 'B6',
-    'xs': 'XS',
-    's': 'S',
-    'm': 'M',
-    'l': 'L',
-    'xl': 'XL',
-}
 
 '''
 ============== VALID TYPES ==============
@@ -63,8 +44,8 @@ one: adds an entry with only one url
 uribou: adds a uribou tapestry entry
 '''
 TYPE = "one"
-# COMPANY = "Getchu"
-COMPANY = "Melonbooks"
+COMPANY = "Getchu"
+# COMPANY = "Melonbooks"
 
 
 # ========================================
@@ -298,11 +279,17 @@ def section_releases(driver, entry):
     driver.find_element(
         By.XPATH, '//*[@id="main"]/div/div/form/div[4]/section/div/div[1]/div/div[2]/a').click()
     time.sleep(1)
-    
-    if(entry['category'] == 'books' and entry['events'] != None):
+    scroll_by(driver, 0, 50)
+    if((entry['category'] == 'books' and entry['events'] != None) or TYPE == "uribou"):
         driver.find_element(
             By.XPATH, '//*[@id="main"]/div/div/form/div[4]/section/div/div[1]/div/div[2]/a').click()
-    scroll_by(driver, 50)
+        scroll_by(driver, 0, 50)
+    if(TYPE == "uribou"):
+        driver.find_element(
+            By.XPATH, '//*[@id="main"]/div/div/form/div[4]/section/div/div[1]/div/div[2]/a').click()
+        scroll_by(driver, 0, 80)
+    
+    
     time.sleep(1)
     # ================= Select the release year =================
     year = Select(driver.find_element(By.NAME, 'releaseYears[]'))
@@ -336,12 +323,12 @@ def section_releases(driver, entry):
             entry['barcode'])
     # ================= Enter the size =================
     if(entry['size'] != None):
-        driver.find_element(By.NAME, 'releaseSizes[]').send_keys(
-            SIZE[entry['size']])
+        driver.find_element(By.NAME, 'releaseSizes[]').send_keys(entry['size'].upper())
+      
 
     # ================= IF THERE IS AN EVENT FOR DOUJIN, ADD ANOTHER RELEASE FOR THAT EVENT =================
      # ================= Select the release year =================
-    if(entry['category'] == 'books' and entry['events'] != None):
+    if((entry['category'] == 'books' and entry['events'] != None) or TYPE == "uribou"):
         year2 = Select(driver.find_elements(By.NAME, 'releaseYears[]')[1])
         if(entry['release_year'] != None):
             year2.select_by_visible_text(entry['release_year'])
@@ -362,23 +349,72 @@ def section_releases(driver, entry):
         # ================= Select the run type =================
         run2 = Select(driver.find_elements(By.NAME, 'releaseRunIds[]')[1])
         if(entry['run'] != None):
-            run2.select_by_value(RUN['limited+exclusive'])
+            run2.select_by_value(RUN['exclusive'])
         # ================= Enter the price =================
         if(entry['notaxprice'] != None):
-            driver.find_elements(By.NAME, 'releasePrices[]')[
-                1].send_keys(entry['notaxprice'])
+            if(TYPE == "uribou"):
+                driver.find_elements(By.NAME, 'releasePrices[]')[
+                1].send_keys(6000)
+            else: 
+                driver.find_elements(By.NAME, 'releasePrices[]')[
+                    1].send_keys(entry['notaxprice'])
         # ================= Enter the barcode=================
         if(entry['barcode'] != None):
             driver.find_elements(By.NAME, 'releaseBarcodes[]')[
                 1].send_keys(entry['barcode'])
         # ================= Enter the size =================
         if(entry['size'] != None):
-            driver.find_elements(By.NAME, 'releaseSizes[]')[
-                1].send_keys(SIZE[entry['size']])
+            if(TYPE == "uribou"):
+                driver.find_elements(By.NAME, 'releaseSizes[]')[
+                1].send_keys("B1")
+            else:
+                driver.find_elements(By.NAME, 'releaseSizes[]')[
+                1].send_keys(entry['size'].upper())
         # ================= Enter additional info =================
         if(entry['additional_info'] != None):
             driver.find_elements(By.NAME, 'releaseEvents[]')[
                 1].send_keys(entry['additional_info'])
+    
+    if(TYPE == "uribou"):
+        scroll_by(driver, 0, 900) 
+        time.sleep(1)
+        year2 = Select(driver.find_elements(By.NAME, 'releaseYears[]')[2])
+        if(entry['release_year'] != None):
+            year2.select_by_visible_text(entry['release_year'])
+        # ================= Select the release month =================
+        month2 = Select(driver.find_elements(By.NAME, 'releaseMonths[]')[2])
+        if(entry['release_month'] != None):
+            if(len(entry['release_month']) == 1):
+                month2.select_by_visible_text('0' + entry['release_month'])
+            else:
+                month2.select_by_visible_text(entry['release_month'])
+        # ================= Select the release day =================
+        day2 = Select(driver.find_elements(By.NAME, 'releaseDays[]')[2])
+        if(entry['release_day'] != None):
+            if(len(entry['release_day']) == 1):
+                day2.select_by_visible_text('0' + entry['release_day'])
+            else:
+                day2.select_by_visible_text(entry['release_day'])
+        # ================= Select the run type =================
+        run2 = Select(driver.find_elements(By.NAME, 'releaseRunIds[]')[2])
+        if(entry['run'] != None):
+            run2.select_by_value(RUN['exclusive'])
+        # ================= Enter the price =================
+        if(entry['notaxprice'] != None):
+            if(TYPE == "uribou"):
+                driver.find_elements(By.NAME, 'releasePrices[]')[
+                2].send_keys(11000)
+            else: 
+                driver.find_elements(By.NAME, 'releasePrices[]')[
+                2].send_keys(entry['notaxprice'])
+        # ================= Enter the barcode=================
+        if(entry['barcode'] != None):
+            driver.find_elements(By.NAME, 'releaseBarcodes[]')[
+                2].send_keys(entry['barcode'])
+        # ================= Enter the size =================
+        if(entry['size'] != None):
+            driver.find_elements(By.NAME, 'releaseSizes[]')[
+                2].send_keys('B0')
 
 
 def section_furtherinfo(driver, entry):
@@ -420,7 +456,7 @@ def section_furtherinfo(driver, entry):
 
 
 def uribou(driver, entry):
-    three_sizes = f'Product Page → [url={entry["links"][0]}]B2[/url] | [url={entry["links"][1]}]B1[/url] | [url={entry["links"][2]}]B0[/url]'
+    three_sizes = f'Product Page → [url={entry["links"][0]}]B2[/url] | [url={entry["links"][1]}]B1[/url] | [url={entry["links"][1]}]B0[/url]'
     driver.find_element(By.NAME, 'infoNote').send_keys(three_sizes)
 
 
@@ -461,7 +497,7 @@ def add_entry(driver, entry):
 
         refine(driver, entry)
 
-        scroll_by(driver, 0, 1150)
+        scroll_by(driver, 0, 1000)
 
         time.sleep(2)
 
@@ -469,7 +505,7 @@ def add_entry(driver, entry):
 
         time.sleep(2)
 
-        scroll_by(driver, 0, 900)
+        scroll_by(driver, 0, 600)
 
         time.sleep(2)
 
@@ -508,7 +544,14 @@ def add_melon_doujin(driver):
             driver.get(URL)
             melonDoujin.main(i)
             main_process(driver)
-
+            
+def add_uribou_tapestry(driver):
+    for i in range(len(melonUribou.melon_urls)):
+        if(melonUribou.melon_urls[i] != ""):
+            print(f'\nAdding entry {i+1}/{len(melonUribou.melon_urls)}\n')
+            driver.get(URL)
+            melonUribou.main(i)
+            main_process(driver)
 
 def main_process(driver):
     driver.get(URL)
@@ -525,9 +568,10 @@ def main():
     load_cookies(driver, COOKIES)
     time.sleep(1)
 
-    # add_got_tapestry(driver)
+    add_got_tapestry(driver)
     # add_melon_tapestry(driver)
-    add_melon_doujin(driver)
+    # add_melon_doujin(driver)
+    # add_uribou_tapestry(driver)
 
 
 if __name__ == "__main__":

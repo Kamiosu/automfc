@@ -3,7 +3,7 @@ import logging
 from lxml import etree
 import requests
 import json
-from scrape_entry.ArtistNotFoundException import ArtistNotFoundException
+from ArtistNotFoundException import ArtistNotFoundException
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36'
@@ -13,6 +13,23 @@ IMAGES_PATH = "/Users/kamiosu/Documents/automfc2023/"
 
 # Make sure that every link is formated so that there are no empty index at the front of the lists
 getchu_urls = [
+    "https://www.getchu.com/soft.phtml?id=1233357",
+    "https://www.getchu.com/soft.phtml?id=1233358",
+    "https://www.getchu.com/soft.phtml?id=1233359",
+    "https://www.getchu.com/soft.phtml?id=1233361",
+    "https://www.getchu.com/soft.phtml?id=1233363",
+    "https://www.getchu.com/soft.phtml?id=1233365",
+    "https://www.getchu.com/soft.phtml?id=1233366",
+    "https://www.getchu.com/soft.phtml?id=1233368",
+    "https://www.getchu.com/soft.phtml?id=1233370",
+    "https://www.getchu.com/soft.phtml?id=1233372",
+    "https://www.getchu.com/soft.phtml?id=1233374",
+    "https://www.getchu.com/soft.phtml?id=1233375",
+    "https://www.getchu.com/soft.phtml?id=1233376",
+    "https://www.getchu.com/soft.phtml?id=1233378",
+    "https://www.getchu.com/soft.phtml?id=1233380",
+    "https://www.getchu.com/soft.phtml?id=1233382",
+    "https://www.getchu.com/soft.phtml?id=1233384",
 
 ]
 
@@ -35,9 +52,9 @@ def is_kanji(char):
 
 def search_json(target, data):
     for item in data:
-        if target.replace(" ", '').lower() == str(item["original_name"]).replace(" ",'').lower():
+        if target.replace(" ", '').lower() == str(item["original_name"]).replace(" ", '').lower():
             return item
-        if target.replace("", '').lower() == str(item["name"]).replace(" ",'').lower():
+        if target.replace(" ", '').lower() == str(item["name"]).replace(" ", '').lower():
             return item
     return None
 
